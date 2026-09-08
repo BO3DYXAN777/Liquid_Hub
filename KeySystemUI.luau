@@ -590,12 +590,23 @@ function KeySystemUI.Run(onSuccess)
 					teardown(function()
 						onSuccess(res.session)
 					end)
+				elseif res and res.ok and res.existingKey then
+					-- this device already owns a live free key; new keys can't be earned until it expires
+					local left = res.expiresAt and (res.expiresAt - os.time() * 1000) or 0
+					local mins = math.max(1, math.ceil(left / 60000))
+					local when
+					if mins >= 60 then
+						when = string.format("%dh %02dm", math.floor(mins / 60), mins % 60)
+					else
+						when = mins .. "m"
+					end
+					setStatus("You already have a key! Time left: " .. when .. ". New keys unlock when it expires.", Color3.fromRGB(255, 200, 90))
 				elseif res and res.reason == "hwid_mismatch" then
 					setStatus("Key is bound to another device. HWID reset in Discord.", Color3.fromRGB(255, 130, 90))
-			elseif res and res.reason == "expired" then
-				setStatus("Key expired - get a new one.", Color3.fromRGB(255, 130, 90))
-			elseif res and res.reason == "rate_limited" then
-				setStatus("Too many attempts - wait a minute and try again.", Color3.fromRGB(255, 170, 90))
+				elseif res and res.reason == "expired" then
+					setStatus("Key expired - get a new one.", Color3.fromRGB(255, 130, 90))
+				elseif res and res.reason == "rate_limited" then
+					setStatus("Too many attempts - wait a minute and try again.", Color3.fromRGB(255, 170, 90))
 				elseif res and res.reason == "banned" then
 					setStatus("This key is banned. Appeal in Discord.", Color3.fromRGB(255, 130, 90))
 				else
