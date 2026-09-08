@@ -1,5 +1,3 @@
--- Obfuscated XOR copy of Sticks Inc 2 | Liquid Hub
--- Key: 115 (0x73) | Decoder: bit32.bxor
 local _Uqzd57={}
 local _nwb76=115
 local function _ieEyy80(t,k) local _YnWn76=''; for _HP78=1,#t do _YnWn76=_YnWn76..string.char(bit32.bxor(t[_HP78],k)) end; return _YnWn76 end
