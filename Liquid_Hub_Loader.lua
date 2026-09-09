@@ -7,6 +7,62 @@ local LOCAL_KEY_UI = "LiquidHub/KeySystemUI.luau" -- optional local cache on dis
 
 local REPO = "https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/"
 
+-- Always-visible on-screen status card. "Nothing appears" is no longer possible:
+-- any failure (unsupported game, load error, key system down) shows up on screen.
+local function showFatal(title, text)
+	pcall(function()
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "LiquidHub_LoaderStatus"
+		gui.ResetOnSpawn = false
+		gui.DisplayOrder = 1000
+		local parented = false
+		pcall(function()
+			if gethui then
+				gui.Parent = gethui()
+				parented = true
+			end
+		end)
+		if not parented then
+			gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+		end
+		local card = Instance.new("Frame")
+		card.AnchorPoint = Vector2.new(0.5, 1)
+		card.Position = UDim2.new(0.5, 0, 1, -40)
+		card.Size = UDim2.fromOffset(400, 88)
+		card.BackgroundColor3 = Color3.fromRGB(17, 17, 23)
+		card.BorderSizePixel = 0
+		card.Parent = gui
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 10)
+		corner.Parent = card
+		local t1 = Instance.new("TextLabel")
+		t1.Size = UDim2.new(1, -20, 0, 24)
+		t1.Position = UDim2.new(0, 10, 0, 8)
+		t1.BackgroundTransparency = 1
+		t1.Font = Enum.Font.GothamBold
+		t1.TextSize = 15
+		t1.TextColor3 = Color3.fromRGB(255, 130, 90)
+		t1.Text = title
+		t1.Parent = card
+		local t2 = Instance.new("TextLabel")
+		t2.Size = UDim2.new(1, -20, 1, -40)
+		t2.Position = UDim2.new(0, 10, 0, 34)
+		t2.BackgroundTransparency = 1
+		t2.Font = Enum.Font.Gotham
+		t2.TextSize = 12
+		t2.TextWrapped = true
+		t2.TextColor3 = Color3.fromRGB(210, 210, 220)
+		t2.Text = text
+		t2.Parent = card
+		task.delay(12, function()
+			pcall(function()
+				gui:Destroy()
+			end)
+		end)
+	end)
+	warn("[Liquid Hub] " .. title .. ": " .. text)
+end
+
 local SUPPORTED = {
 	-- Final Swarm
 	[99521272836282] = REPO .. "Final%20Swarm.luau", -- Final Swarm main
@@ -74,14 +130,10 @@ withPlugin(function()
 	end
 
 	if not url then
-		warn("[Universal Loader] Game not supported: PlaceId=" .. tostring(pid) .. " GameId=" .. tostring(gid) .. " Name=" .. tostring(game.Name))
-		pcall(function()
-			game:GetService("StarterGui"):SetCore("SendNotification", {
-				Title = "Universal Loader",
-				Text = "Game not supported: " .. tostring(pid),
-				Duration = 5,
-			})
-		end)
+		showFatal(
+			"Game not supported",
+			"PlaceId=" .. tostring(pid) .. " | GameId=" .. tostring(gid) .. " | Name=" .. tostring(game.Name) .. " - send this to the developer"
+		)
 		return
 	end
 
@@ -123,6 +175,10 @@ withPlugin(function()
 		end
 
 		warn("[Universal Loader] Key system UI failed to load: " .. tostring(remote))
+		showFatal(
+			"Key system failed to load",
+			"Check your internet and re-inject. If it keeps failing, tell the developer: " .. tostring(remote)
+		)
 		return nil
 	end
 
@@ -139,16 +195,12 @@ withPlugin(function()
 	end
 
 	if KeySystemUI and KeySystemUI.Run then
-		KeySystemUI.Run(startHub)
+		local ok, err = pcall(KeySystemUI.Run, startHub)
+		if not ok then
+			showFatal("Key system error", tostring(err))
+		end
 	else
 		-- FAIL CLOSED: no key UI = no hub. Never bypass the key system.
-		warn("[Universal Loader] Key system unavailable - hub stays locked. Check your internet or try again.")
-		pcall(function()
-			game:GetService("StarterGui"):SetCore("SendNotification", {
-				Title = "Liquid Hub",
-				Text = "Key system failed to load - re-inject and try again.",
-				Duration = 6,
-			})
-		end)
+		showFatal("Key system unavailable", "The key UI could not be loaded - hub stays locked. Re-inject and try again.")
 	end
 end)
