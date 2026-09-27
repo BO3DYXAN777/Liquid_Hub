@@ -1,6 +1,6 @@
 -- Liquid Hub | packed v2 | do not edit
-local lrln = "eyJ2IjogMiwgInNjcmlwdCI6ICJqdW1wLWZvci1hbmltYWxzIiwgImNyYzMyIjogNjUzOTM0OTQzLCAibGVuIjogNzI4MjR9"
-local mqw = {
+local sk = "eyJ2IjogMiwgInNjcmlwdCI6ICJqdW1wLWZvci1hbmltYWxzIiwgImNyYzMyIjogNjUzOTM0OTQzLCAibGVuIjogNzI4MjR9"
+local wkj = {
 192,184,12,123,99,175,153,112,42,117,93,220,116,94,18,234,
 38,17,49,38,193,128,234,55,126,186,241,239,251,149,212,123,
 140,249,36,42,96,228,180,106,62,58,20,247,54,101,14,236,
@@ -4555,55 +4555,58 @@ local mqw = {
 96,2,51,64,190,144,179,29,
 }
 return (function()
-	local amn, fgb = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
-	if type(amn) ~= "function" or type(fgb) ~= "function" then
+	local re, pq = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
+	if type(re) ~= "function" or type(pq) ~= "function" then
 		warn("[Liquid Hub] Packed v2 requires a full executor environment.")
 		return
 	end
-	pcall(fgb, 8)
-	local dlsx, ugmf = pcall(function()
-		local cvz = amn().LiquidHubPackKey
-		if type(cvz) ~= "table" then return nil end
-		local jra = cvz["jump-for-animals"]
-		if type(jra) ~= "string" or #jra ~= 64 then return nil end
+	pcall(pq, 8)
+	local xm, ontp = pcall(function()
+		local qgyu = re().LiquidHubPackKey
+		if type(qgyu) ~= "table" then return nil end
+		local iwh = qgyu["jump-for-animals"]
+		if type(iwh) ~= "string" or #iwh ~= 64 then return nil end
 		-- the pack key arrives as 64 hex chars; decode to 32 raw bytes FIRST
 		-- (pack2.py XORs with the raw digest bytes, not the ASCII of the hex)
-		local twh = table.create(32)
-		for wxg = 1, 32 do
-			twh[wxg] = tonumber(jra:sub(wxg * 2 - 1, wxg * 2), 16) or 0
+		local io = table.create(32)
+		for stu = 1, 32 do
+			io[stu] = tonumber(iwh:sub(stu * 2 - 1, stu * 2), 16) or 0
 		end
-		local xk = table.create(#mqw)
-		for uts = 1, #mqw do
-			local uff = twh[(uts - 1) % 32 + 1]
-			xk[uts] = string.char(bit32.bxor(mqw[uts], uff))
+		local zw = table.create(#wkj)
+		for xtc = 1, #wkj do
+			local uw = io[(xtc - 1) % 32 + 1]
+			zw[xtc] = string.char(bit32.bxor(wkj[xtc], uw))
 		end
-		cvz["jump-for-animals"] = nil -- one-shot: scrub after decode
-		return table.concat(xk)
+		qgyu["jump-for-animals"] = nil -- one-shot: scrub after decode
+		return table.concat(zw)
 	end)
-	if not dlsx or type(ugmf) ~= "string" or #ugmf < 100 then
+	if not xm or type(ontp) ~= "string" or #ontp < 100 then
 		-- no pack key in this environment: this file was run raw (not via the
 		-- loader). Auto-run the official loader, which handles session, key UI
 		-- and pack-key injection. A leaked file still cannot decode itself.
 		-- NOTE: Roblox HttpGet returns the 404 body as a string instead of
 		-- erroring, so we pcall + length-check + try a second URL form.
 		warn("[Liquid Hub] No pack key - routing to the official loader...")
-		local grmh
-		pcall(function() grmh = game:HttpGet("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/Liquid_Hub_Loader.lua") end)
-		if type(grmh) ~= "string" or #grmh < 200 then
-			grmh = nil
-			pcall(function() grmh = game:HttpGet("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/Liquid_Hub_Loader.lua") end)
+		local jae
+		-- cache-buster: executors cache HttpGet aggressively; a stale loader
+		-- here causes an infinite stub->loader->stub loop after updates.
+		local dylk = "?cb=" .. tostring(os.time()) .. tostring(math.random(100000))
+		pcall(function() jae = game:HttpGet("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/Liquid_Hub_Loader.lua" .. dylk) end)
+		if type(jae) ~= "string" or #jae < 200 then
+			jae = nil
+			pcall(function() jae = game:HttpGet("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/Liquid_Hub_Loader.lua" .. dylk) end)
 		end
-		if type(grmh) == "string" and #grmh > 200 then
-			local qprb = (loadstring or load)(grmh)
-			if qprb then return qprb() end
+		if type(jae) == "string" and #jae > 200 then
+			local gy = (loadstring or load)(jae)
+			if gy then return gy() end
 		end
 		warn("[Liquid Hub] Could not fetch the official loader (GitHub unreachable?). Run the loader manually or join the Discord.")
 		return
 	end
-	local yymg, zj = (loadstring or load)(ugmf)
-	if not yymg then
+	local uvup, xxf = (loadstring or load)(ontp)
+	if not uvup then
 		warn("[Liquid Hub] Packed script integrity failure.")
 		return
 	end
-	return yymg()
+	return uvup()
 end)()
