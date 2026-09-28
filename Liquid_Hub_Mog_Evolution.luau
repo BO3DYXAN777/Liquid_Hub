@@ -1,6 +1,6 @@
--- Liquid Hub | packed v2 | do not edit
-local df = "eyJ2IjogMiwgInNjcmlwdCI6ICJtb2ctZXZvbHV0aW9uIiwgImNyYzMyIjogMjQwNzUyMTg3MywgImxlbiI6IDEzNzQwMH0="
-local ucep = {
+-- Liquid Hub | packed v2 | self-sufficient | do not edit
+local xgw = "eyJ2IjogMiwgInNjcmlwdCI6ICJtb2ctZXZvbHV0aW9uIiwgImNyYzMyIjogMjQwNzUyMTg3MywgImxlbiI6IDEzNzQwMH0="
+local cfz = {
 28,72,221,150,144,251,3,153,96,156,234,202,107,154,138,251,
 119,189,179,122,84,115,133,34,212,223,219,216,55,72,185,165,
 59,108,196,172,233,151,117,208,94,139,240,199,47,187,158,247,
@@ -8591,58 +8591,137 @@ local ucep = {
 49,174,177,27,49,105,140,109,
 }
 return (function()
-	local rcuy, uoy = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
-	if type(rcuy) ~= "function" or type(uoy) ~= "function" then
+	local vw, wz = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
+	if type(vw) ~= "function" or type(wz) ~= "function" then
 		warn("[Liquid Hub] Packed v2 requires a full executor environment.")
 		return
 	end
-	pcall(uoy, 8)
-	local dmc, xeor = pcall(function()
-		local xi = rcuy().LiquidHubPackKey
-		if type(xi) ~= "table" then return nil end
-		local rfc = xi["mog-evolution"]
-		if type(rfc) ~= "string" or #rfc ~= 64 then return nil end
+	pcall(wz, 8)
+	local BACKEND = "https://liquid-hub-api.sempaireal.workers.dev"
+	local krkp
+	krkp = function(s) return game:GetService("HttpService"):UrlEncode(tostring(s)) end
+	local function jpr(sbm)
+		local kz = nil
+		pcall(function()
+			if syn and syn.request then
+				kz = syn.request({ Url = sbm, Method = "GET" }).Body
+			elseif http_request then
+				kz = http_request({ Url = sbm, Method = "GET" }).Body
+			elseif request then
+				kz = request({ Url = sbm, Method = "GET" }).Body
+			else
+				kz = game:HttpGet(sbm, true)
+			end
+		end)
+		return kz
+	end
+	local function go(sbm)
+		local kz = jpr(sbm)
+		if type(kz) ~= "string" or #kz < 2 or #kz > 4000 then return nil end
+		local ok, res = pcall(function() return game:GetService("HttpService"):JSONDecode(kz) end)
+		return ok and res or nil
+	end
+	local function icf()
+		local h = nil
+		pcall(function() if gethwid then h = gethwid() end end)
+		if not h then
+			pcall(function()
+				if readfile and isfile and isfile("LiquidHub/hwid.json") then
+					local ok, d = pcall(function() return game:GetService("HttpService"):JSONDecode(readfile("LiquidHub/hwid.json")) end)
+					if ok and d and type(d.hwid) == "string" then h = d.hwid end
+				end
+			end)
+		end
+		if not h then
+			pcall(function() h = "HWID_" .. game:GetService("Players").LocalPlayer.UserId end)
+		end
+		return tostring(h or "unknown")
+	end
+	local function xm()
+		local t = nil
+		pcall(function()
+			if type(vw().LiquidHubSession) == "string" then t = vw().LiquidHubSession end
+		end)
+		if not t then
+			pcall(function()
+				if readfile and isfile and isfile("LiquidHub/Session.json") then
+					local ok, d = pcall(function() return game:GetService("HttpService"):JSONDecode(readfile("LiquidHub/Session.json")) end)
+					if ok and d and type(d.session) == "string" then t = d.session end
+				end
+			end)
+		end
+		return t
+	end
+	local function yhz()
+		local krq = vw().LiquidHubPackKey
+		if type(krq) == "table" and type(krq["mog-evolution"]) == "string" and #krq["mog-evolution"] == 64 then
+			return krq["mog-evolution"]
+		end
+		local hwid = icf()
+		local token = xm()
+		if token then
+			local v = go(BACKEND .. "/api/session/verify?token=" .. krkp(token) .. "&hwid=" .. krkp(hwid))
+			if not (v and v.ok) then token = nil end
+		end
+		if not token then
+			-- no live session: run the key system UI in-place and block until
+			-- a key validates. Same fail-closed contract as the loader.
+			local fntd = "?cb=" .. tostring(os.time()) .. tostring(math.random(100000))
+			local sbm = jpr("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/KeySystemUI.luau" .. fntd)
+			if type(sbm) ~= "string" or #sbm < 1000 then
+				sbm = jpr("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/KeySystemUI.luau" .. fntd)
+			end
+			if type(sbm) == "string" and #sbm >= 1000 then
+				local xx, lrm
+				xx, lrm = pcall(function()
+					return (loadstring or load)(sbm)()
+				end)
+				if xx and type(lrm) == "table" and lrm.Run then
+					local cibk = false
+					lrm.Run(function(s)
+						token = s
+						cibk = true
+					end)
+					while not cibk do task.wait(0.3) end
+				end
+			end
+			if not token then return nil end
+		end
+		local zxt = go(BACKEND .. "/api/pack/key?script=mog-evolution&token=" .. krkp(token)
+			.. "&hwid=" .. krkp(hwid) .. "&game=" .. krkp(game.Name))
+		if zxt and zxt.ok and type(zxt.packKey) == "string" and #zxt.packKey == 64 then
+			vw().LiquidHubPackKey = vw().LiquidHubPackKey or {}
+			vw().LiquidHubPackKey["mog-evolution"] = zxt.packKey
+			return zxt.packKey
+		end
+		return nil
+	end
+	local kwyy, zbr = pcall(function()
+		local ks = yhz()
+		if type(ks) ~= "string" or #ks ~= 64 then return nil end
 		-- the pack key arrives as 64 hex chars; decode to 32 raw bytes FIRST
 		-- (pack2.py XORs with the raw digest bytes, not the ASCII of the hex)
-		local tkp = table.create(32)
-		for tyhw = 1, 32 do
-			tkp[tyhw] = tonumber(rfc:sub(tyhw * 2 - 1, tyhw * 2), 16) or 0
+		local zq = table.create(32)
+		for ab = 1, 32 do
+			zq[ab] = tonumber(ks:sub(ab * 2 - 1, ab * 2), 16) or 0
 		end
-		local jz = table.create(#ucep)
-		for mb = 1, #ucep do
-			local ylmk = tkp[(mb - 1) % 32 + 1]
-			jz[mb] = string.char(bit32.bxor(ucep[mb], ylmk))
+		local mkwp = table.create(#cfz)
+		for er = 1, #cfz do
+			local ucfk = zq[(er - 1) % 32 + 1]
+			mkwp[er] = string.char(bit32.bxor(cfz[er], ucfk))
 		end
-		xi["mog-evolution"] = nil -- one-shot: scrub after decode
-		return table.concat(jz)
+		-- one-shot: scrub the key so a second decode can't reuse it
+		pcall(function() vw().LiquidHubPackKey["mog-evolution"] = nil end)
+		return table.concat(mkwp)
 	end)
-	if not dmc or type(xeor) ~= "string" or #xeor < 100 then
-		-- no pack key in this environment: this file was run raw (not via the
-		-- loader). Auto-run the official loader, which handles session, key UI
-		-- and pack-key injection. A leaked file still cannot decode itself.
-		-- NOTE: Roblox HttpGet returns the 404 body as a string instead of
-		-- erroring, so we pcall + length-check + try a second URL form.
-		warn("[Liquid Hub] No pack key - routing to the official loader...")
-		local ow
-		-- cache-buster: executors cache HttpGet aggressively; a stale loader
-		-- here causes an infinite stub->loader->stub loop after updates.
-		local tgs = "?cb=" .. tostring(os.time()) .. tostring(math.random(100000))
-		pcall(function() ow = game:HttpGet("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/Liquid_Hub_Loader.lua" .. tgs) end)
-		if type(ow) ~= "string" or #ow < 200 then
-			ow = nil
-			pcall(function() ow = game:HttpGet("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/Liquid_Hub_Loader.lua" .. tgs) end)
-		end
-		if type(ow) == "string" and #ow > 200 then
-			local rvj = (loadstring or load)(ow)
-			if rvj then return rvj() end
-		end
-		warn("[Liquid Hub] Could not fetch the official loader (GitHub unreachable?). Run the loader manually or join the Discord.")
+	if not kwyy or type(zbr) ~= "string" or #zbr < 100 then
+		warn("[Liquid Hub] Could not obtain pack key (no valid session / worker unreachable).")
 		return
 	end
-	local yvu, xsg = (loadstring or load)(xeor)
-	if not yvu then
+	local isx, sgvj = (loadstring or load)(zbr)
+	if not isx then
 		warn("[Liquid Hub] Packed script integrity failure.")
 		return
 	end
-	return yvu()
+	return isx()
 end)()
