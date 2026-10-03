@@ -1,6 +1,6 @@
 -- Liquid Hub | packed v2 | self-sufficient | do not edit
-local dn = "eyJ2IjogMiwgInNjcmlwdCI6ICJyaWRlLWEtcGV0IiwgImNyYzMyIjogMjM5NDgwNjY3MSwgImxlbiI6IDEyMzA4N30="
-local kdpu = {
+local oagf = "eyJ2IjogMiwgInNjcmlwdCI6ICJyaWRlLWEtcGV0IiwgImNyYzMyIjogMjM5NDgwNjY3MSwgImxlbiI6IDEyMzA4N30="
+local yft = {
 88,94,74,86,109,43,173,191,58,169,77,26,175,115,210,14,
 204,14,225,92,37,228,32,231,220,68,221,208,53,87,176,112,
 26,11,67,36,120,111,132,246,10,252,116,27,251,27,219,76,
@@ -7696,56 +7696,67 @@ local kdpu = {
 27,21,5,38,40,69,193,226,82,131,120,17,191,122,164,
 }
 return (function()
-	local axnj, rbgg = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
-	if type(axnj) ~= "function" or type(rbgg) ~= "function" then
+	local hici, ecr = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
+	if type(hici) ~= "function" or type(ecr) ~= "function" then
 		warn("[Liquid Hub] Packed v2 requires a full executor environment.")
 		return
 	end
-	pcall(rbgg, 8)
+	pcall(ecr, 8)
 	local BACKEND = "https://liquid-hub-api.sempaireal.workers.dev"
-	local sdog
-	sdog = function(s) return game:GetService("HttpService"):UrlEncode(tostring(s)) end
-	local function mgh(agl)
-		local jkz = nil
+	local qr
+	qr = function(s) return game:GetService("HttpService"):UrlEncode(tostring(s)) end
+	local function jb(vi)
+		local fq = nil
 		pcall(function()
 			if syn and syn.request then
-				jkz = syn.request({ Url = agl, Method = "GET" }).Body
+				fq = syn.request({ Url = vi, Method = "GET" }).Body
 			elseif http_request then
-				jkz = http_request({ Url = agl, Method = "GET" }).Body
+				fq = http_request({ Url = vi, Method = "GET" }).Body
 			elseif request then
-				jkz = request({ Url = agl, Method = "GET" }).Body
+				fq = request({ Url = vi, Method = "GET" }).Body
 			else
-				jkz = game:HttpGet(agl, true)
+				fq = game:HttpGet(vi, true)
 			end
 		end)
-		return jkz
+		return fq
 	end
-	local function ut(agl)
-		local jkz = mgh(agl)
-		if type(jkz) ~= "string" or #jkz < 2 or #jkz > 4000 then return nil end
-		local ok, res = pcall(function() return game:GetService("HttpService"):JSONDecode(jkz) end)
+	local function eans(vi)
+		local fq = jb(vi)
+		if type(fq) ~= "string" or #fq < 2 or #fq > 4000 then return nil end
+		local ok, res = pcall(function() return game:GetService("HttpService"):JSONDecode(fq) end)
 		return ok and res or nil
 	end
-	local function qrec()
-		local h = nil
-		pcall(function() if gethwid then h = gethwid() end end)
-		if not h then
-			pcall(function()
-				if readfile and isfile and isfile("LiquidHub/hwid.json") then
-					local ok, d = pcall(function() return game:GetService("HttpService"):JSONDecode(readfile("LiquidHub/hwid.json")) end)
-					if ok and d and type(d.hwid) == "string" then h = d.hwid end
-				end
-			end)
+	-- Identity candidates, most-trusted first. LiquidHub/hwid.json is the
+	-- PERSISTED identity that KeySystemUI, the loader and the hub gates all
+	-- use; gethwid() returns a NEW value every session on cloud executors
+	-- (Ugphone), so it can only ever be a fallback. Every candidate is tried
+	-- against the worker instead of betting the whole load on one guess.
+	local function cpbe()
+		local list, seen = {}, {}
+		local function push(h)
+			if type(h) == "string" and h ~= "" and not seen[h] then
+				seen[h] = true
+				list[#list + 1] = h
+			end
 		end
-		if not h then
-			pcall(function() h = "HWID_" .. game:GetService("Players").LocalPlayer.UserId end)
-		end
-		return tostring(h or "unknown")
+		pcall(function()
+			if readfile and isfile and isfile("LiquidHub/hwid.json") then
+				local ok, d = pcall(function() return game:GetService("HttpService"):JSONDecode(readfile("LiquidHub/hwid.json")) end)
+				if ok and type(d) == "table" and type(d.hwid) == "string" and #d.hwid >= 16 then push(d.hwid) end
+			end
+		end)
+		pcall(function() if gethwid then push(tostring(gethwid())) end end)
+		pcall(function()
+			local lp = game:GetService("Players").LocalPlayer
+			if lp then push("HWID_" .. lp.UserId) end
+		end)
+		push("unknown")
+		return list
 	end
-	local function duj()
+	local function fpwe()
 		local t = nil
 		pcall(function()
-			if type(axnj().LiquidHubSession) == "string" then t = axnj().LiquidHubSession end
+			if type(hici().LiquidHubSession) == "string" then t = hici().LiquidHubSession end
 		end)
 		if not t then
 			pcall(function()
@@ -7757,76 +7768,88 @@ return (function()
 		end
 		return t
 	end
-	local function atm()
-		local wo = axnj().LiquidHubPackKey
-		if type(wo) == "table" and type(wo["ride-a-pet"]) == "string" and #wo["ride-a-pet"] == 64 then
-			return wo["ride-a-pet"]
+	local function md()
+		local afu = hici().LiquidHubPackKey
+		if type(afu) == "table" and type(afu["ride-a-pet"]) == "string" and #afu["ride-a-pet"] == 64 then
+			return afu["ride-a-pet"]
 		end
-		local hwid = qrec()
-		local token = duj()
+		local cands = cpbe()
+		local token = fpwe()
 		if token then
-			local v = ut(BACKEND .. "/api/session/verify?token=" .. sdog(token) .. "&hwid=" .. sdog(hwid))
-			if not (v and v.ok) then token = nil end
+			for _, cand in ipairs(cands) do
+				local v = eans(BACKEND .. "/api/session/verify?token=" .. qr(token) .. "&hwid=" .. qr(cand))
+				if not (v and v.ok) then continue end
+				local di = eans(BACKEND .. "/api/pack/key?script=ride-a-pet&token=" .. qr(token)
+					.. "&hwid=" .. qr(cand) .. "&game=" .. qr(game.Name))
+				if di and di.ok and type(di.packKey) == "string" and #di.packKey == 64 then
+					hici().LiquidHubPackKey = hici().LiquidHubPackKey or {}
+					hici().LiquidHubPackKey["ride-a-pet"] = di.packKey
+					return di.packKey
+				end
+			end
+			token = nil
 		end
 		if not token then
 			-- no live session: run the key system UI in-place and block until
 			-- a key validates. Same fail-closed contract as the loader.
-			local vkf = "?cb=" .. tostring(os.time()) .. tostring(math.random(100000))
-			local agl = mgh("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/KeySystemUI.luau" .. vkf)
-			if type(agl) ~= "string" or #agl < 1000 then
-				agl = mgh("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/KeySystemUI.luau" .. vkf)
+			local hnm = "?cb=" .. tostring(os.time()) .. tostring(math.random(100000))
+			local vi = jb("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/KeySystemUI.luau" .. hnm)
+			if type(vi) ~= "string" or #vi < 1000 then
+				vi = jb("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/KeySystemUI.luau" .. hnm)
 			end
-			if type(agl) == "string" and #agl >= 1000 then
-				local du, crmg
-				du, crmg = pcall(function()
-					return (loadstring or load)(agl)()
+			if type(vi) == "string" and #vi >= 1000 then
+				local jqz, lz
+				jqz, lz = pcall(function()
+					return (loadstring or load)(vi)()
 				end)
-				if du and type(crmg) == "table" and crmg.Run then
-					local flwo = false
-					crmg.Run(function(s)
+				if jqz and type(lz) == "table" and lz.Run then
+					local ce = false
+					lz.Run(function(s)
 						token = s
-						flwo = true
+						ce = true
 					end)
-					while not flwo do task.wait(0.3) end
+					while not ce do task.wait(0.3) end
 				end
 			end
 			if not token then return nil end
 		end
-		local jnu = ut(BACKEND .. "/api/pack/key?script=ride-a-pet&token=" .. sdog(token)
-			.. "&hwid=" .. sdog(hwid) .. "&game=" .. sdog(game.Name))
-		if jnu and jnu.ok and type(jnu.packKey) == "string" and #jnu.packKey == 64 then
-			axnj().LiquidHubPackKey = axnj().LiquidHubPackKey or {}
-			axnj().LiquidHubPackKey["ride-a-pet"] = jnu.packKey
-			return jnu.packKey
+		for _, cand in ipairs(cands) do
+			local di = eans(BACKEND .. "/api/pack/key?script=ride-a-pet&token=" .. qr(token)
+				.. "&hwid=" .. qr(cand) .. "&game=" .. qr(game.Name))
+			if di and di.ok and type(di.packKey) == "string" and #di.packKey == 64 then
+				hici().LiquidHubPackKey = hici().LiquidHubPackKey or {}
+				hici().LiquidHubPackKey["ride-a-pet"] = di.packKey
+				return di.packKey
+			end
 		end
 		return nil
 	end
-	local nnbz, pvsx = pcall(function()
-		local vdj = atm()
-		if type(vdj) ~= "string" or #vdj ~= 64 then return nil end
+	local fqn, ikm = pcall(function()
+		local eq = md()
+		if type(eq) ~= "string" or #eq ~= 64 then return nil end
 		-- the pack key arrives as 64 hex chars; decode to 32 raw bytes FIRST
 		-- (pack2.py XORs with the raw digest bytes, not the ASCII of the hex)
-		local dq = table.create(32)
-		for afnu = 1, 32 do
-			dq[afnu] = tonumber(vdj:sub(afnu * 2 - 1, afnu * 2), 16) or 0
+		local zpxd = table.create(32)
+		for fm = 1, 32 do
+			zpxd[fm] = tonumber(eq:sub(fm * 2 - 1, fm * 2), 16) or 0
 		end
-		local dyy = table.create(#kdpu)
-		for sjf = 1, #kdpu do
-			local nzd = dq[(sjf - 1) % 32 + 1]
-			dyy[sjf] = string.char(bit32.bxor(kdpu[sjf], nzd))
+		local lld = table.create(#yft)
+		for niay = 1, #yft do
+			local jerg = zpxd[(niay - 1) % 32 + 1]
+			lld[niay] = string.char(bit32.bxor(yft[niay], jerg))
 		end
 		-- one-shot: scrub the key so a second decode can't reuse it
-		pcall(function() axnj().LiquidHubPackKey["ride-a-pet"] = nil end)
-		return table.concat(dyy)
+		pcall(function() hici().LiquidHubPackKey["ride-a-pet"] = nil end)
+		return table.concat(lld)
 	end)
-	if not nnbz or type(pvsx) ~= "string" or #pvsx < 100 then
+	if not fqn or type(ikm) ~= "string" or #ikm < 100 then
 		warn("[Liquid Hub] Could not obtain pack key (no valid session / worker unreachable).")
 		return
 	end
-	local qi, eab = (loadstring or load)(pvsx)
-	if not qi then
+	local jn, gnf = (loadstring or load)(ikm)
+	if not jn then
 		warn("[Liquid Hub] Packed script integrity failure.")
 		return
 	end
-	return qi()
+	return jn()
 end)()
