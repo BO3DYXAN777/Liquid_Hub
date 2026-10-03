@@ -1,6 +1,6 @@
 -- Liquid Hub | packed v2 | self-sufficient | do not edit
-local vkp = "eyJ2IjogMiwgInNjcmlwdCI6ICJmaW5hbC1zd2FybSIsICJjcmMzMiI6IDIyNTQ0NjY1MzUsICJsZW4iOiAyMTIyNjl9"
-local fwz = {
+local bro = "eyJ2IjogMiwgInNjcmlwdCI6ICJmaW5hbC1zd2FybSIsICJjcmMzMiI6IDIyNTQ0NjY1MzUsICJsZW4iOiAyMTIyNjl9"
+local hxw = {
 4,117,246,136,228,238,113,223,47,9,234,117,243,94,219,131,
 145,92,89,153,150,75,2,239,237,60,40,97,229,215,137,62,
 107,57,222,182,212,199,114,212,45,21,231,120,178,120,251,141,
@@ -13270,34 +13270,34 @@ local fwz = {
 11,113,132,243,139,137,89,159,84,25,237,117,217,
 }
 return (function()
-	local zvk, ga = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
-	if type(zvk) ~= "function" or type(ga) ~= "function" then
+	local bx, gi = getgenv, (setthreadidentity or set_thread_identity or setthreadcontext or set_identity)
+	if type(bx) ~= "function" or type(gi) ~= "function" then
 		warn("[Liquid Hub] Packed v2 requires a full executor environment.")
 		return
 	end
-	pcall(ga, 8)
+	pcall(gi, 8)
 	local BACKEND = "https://liquid-hub-api.sempaireal.workers.dev"
-	local yz
-	yz = function(s) return game:GetService("HttpService"):UrlEncode(tostring(s)) end
-	local function lx(eu)
-		local sab = nil
+	local oe
+	oe = function(s) return game:GetService("HttpService"):UrlEncode(tostring(s)) end
+	local function pcjv(dewi)
+		local rq = nil
 		pcall(function()
 			if syn and syn.request then
-				sab = syn.request({ Url = eu, Method = "GET" }).Body
+				rq = syn.request({ Url = dewi, Method = "GET" }).Body
 			elseif http_request then
-				sab = http_request({ Url = eu, Method = "GET" }).Body
+				rq = http_request({ Url = dewi, Method = "GET" }).Body
 			elseif request then
-				sab = request({ Url = eu, Method = "GET" }).Body
+				rq = request({ Url = dewi, Method = "GET" }).Body
 			else
-				sab = game:HttpGet(eu, true)
+				rq = game:HttpGet(dewi, true)
 			end
 		end)
-		return sab
+		return rq
 	end
-	local function tc(eu)
-		local sab = lx(eu)
-		if type(sab) ~= "string" or #sab < 2 or #sab > 4000 then return nil end
-		local ok, res = pcall(function() return game:GetService("HttpService"):JSONDecode(sab) end)
+	local function enah(dewi)
+		local rq = pcjv(dewi)
+		if type(rq) ~= "string" or #rq < 2 or #rq > 4000 then return nil end
+		local ok, res = pcall(function() return game:GetService("HttpService"):JSONDecode(rq) end)
 		return ok and res or nil
 	end
 	-- Identity candidates, most-trusted first. LiquidHub/hwid.json is the
@@ -13305,7 +13305,7 @@ return (function()
 	-- use; gethwid() returns a NEW value every session on cloud executors
 	-- (Ugphone), so it can only ever be a fallback. Every candidate is tried
 	-- against the worker instead of betting the whole load on one guess.
-	local function dlb()
+	local function djg()
 		local list, seen = {}, {}
 		local function push(h)
 			if type(h) == "string" and h ~= "" and not seen[h] then
@@ -13313,6 +13313,10 @@ return (function()
 				list[#list + 1] = h
 			end
 		end
+		pcall(function()
+			local g = bx()
+			if type(g) == "table" and type(g.LiquidHubHwid) == "string" then push(g.LiquidHubHwid) end
+		end)
 		pcall(function()
 			if readfile and isfile and isfile("LiquidHub/hwid.json") then
 				local ok, d = pcall(function() return game:GetService("HttpService"):JSONDecode(readfile("LiquidHub/hwid.json")) end)
@@ -13327,10 +13331,10 @@ return (function()
 		push("unknown")
 		return list
 	end
-	local function og()
+	local function rdc()
 		local t = nil
 		pcall(function()
-			if type(zvk().LiquidHubSession) == "string" then t = zvk().LiquidHubSession end
+			if type(bx().LiquidHubSession) == "string" then t = bx().LiquidHubSession end
 		end)
 		if not t then
 			pcall(function()
@@ -13342,23 +13346,23 @@ return (function()
 		end
 		return t
 	end
-	local function yjxn()
-		local ecc = zvk().LiquidHubPackKey
-		if type(ecc) == "table" and type(ecc["final-swarm"]) == "string" and #ecc["final-swarm"] == 64 then
-			return ecc["final-swarm"]
+	local function ocmp()
+		local evv = bx().LiquidHubPackKey
+		if type(evv) == "table" and type(evv["final-swarm"]) == "string" and #evv["final-swarm"] == 64 then
+			return evv["final-swarm"]
 		end
-		local cands = dlb()
-		local token = og()
+		local cands = djg()
+		local token = rdc()
 		if token then
 			for _, cand in ipairs(cands) do
-				local v = tc(BACKEND .. "/api/session/verify?token=" .. yz(token) .. "&hwid=" .. yz(cand))
+				local v = enah(BACKEND .. "/api/session/verify?token=" .. oe(token) .. "&hwid=" .. oe(cand))
 				if not (v and v.ok) then continue end
-				local yqri = tc(BACKEND .. "/api/pack/key?script=final-swarm&token=" .. yz(token)
-					.. "&hwid=" .. yz(cand) .. "&game=" .. yz(game.Name))
-				if yqri and yqri.ok and type(yqri.packKey) == "string" and #yqri.packKey == 64 then
-					zvk().LiquidHubPackKey = zvk().LiquidHubPackKey or {}
-					zvk().LiquidHubPackKey["final-swarm"] = yqri.packKey
-					return yqri.packKey
+				local ef = enah(BACKEND .. "/api/pack/key?script=final-swarm&token=" .. oe(token)
+					.. "&hwid=" .. oe(cand) .. "&game=" .. oe(game.Name))
+				if ef and ef.ok and type(ef.packKey) == "string" and #ef.packKey == 64 then
+					bx().LiquidHubPackKey = bx().LiquidHubPackKey or {}
+					bx().LiquidHubPackKey["final-swarm"] = ef.packKey
+					return ef.packKey
 				end
 			end
 			token = nil
@@ -13366,64 +13370,64 @@ return (function()
 		if not token then
 			-- no live session: run the key system UI in-place and block until
 			-- a key validates. Same fail-closed contract as the loader.
-			local hxk = "?cb=" .. tostring(os.time()) .. tostring(math.random(100000))
-			local eu = lx("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/KeySystemUI.luau" .. hxk)
-			if type(eu) ~= "string" or #eu < 1000 then
-				eu = lx("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/KeySystemUI.luau" .. hxk)
+			local xw = "?cb=" .. tostring(os.time()) .. tostring(math.random(100000))
+			local dewi = pcjv("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/refs/heads/main/KeySystemUI.luau" .. xw)
+			if type(dewi) ~= "string" or #dewi < 1000 then
+				dewi = pcjv("https://raw.githubusercontent.com/BO3DYXAN777/Liquid_Hub/main/KeySystemUI.luau" .. xw)
 			end
-			if type(eu) == "string" and #eu >= 1000 then
-				local ow, git
-				ow, git = pcall(function()
-					return (loadstring or load)(eu)()
+			if type(dewi) == "string" and #dewi >= 1000 then
+				local iagb, ldm
+				iagb, ldm = pcall(function()
+					return (loadstring or load)(dewi)()
 				end)
-				if ow and type(git) == "table" and git.Run then
-					local nud = false
-					git.Run(function(s)
+				if iagb and type(ldm) == "table" and ldm.Run then
+					local srs = false
+					ldm.Run(function(s)
 						token = s
-						nud = true
+						srs = true
 					end)
-					while not nud do task.wait(0.3) end
+					while not srs do task.wait(0.3) end
 				end
 			end
 			if not token then return nil end
 		end
 		for _, cand in ipairs(cands) do
-			local yqri = tc(BACKEND .. "/api/pack/key?script=final-swarm&token=" .. yz(token)
-				.. "&hwid=" .. yz(cand) .. "&game=" .. yz(game.Name))
-			if yqri and yqri.ok and type(yqri.packKey) == "string" and #yqri.packKey == 64 then
-				zvk().LiquidHubPackKey = zvk().LiquidHubPackKey or {}
-				zvk().LiquidHubPackKey["final-swarm"] = yqri.packKey
-				return yqri.packKey
+			local ef = enah(BACKEND .. "/api/pack/key?script=final-swarm&token=" .. oe(token)
+				.. "&hwid=" .. oe(cand) .. "&game=" .. oe(game.Name))
+			if ef and ef.ok and type(ef.packKey) == "string" and #ef.packKey == 64 then
+				bx().LiquidHubPackKey = bx().LiquidHubPackKey or {}
+				bx().LiquidHubPackKey["final-swarm"] = ef.packKey
+				return ef.packKey
 			end
 		end
 		return nil
 	end
-	local gay, tkeh = pcall(function()
-		local bd = yjxn()
-		if type(bd) ~= "string" or #bd ~= 64 then return nil end
+	local tqrv, bvn = pcall(function()
+		local sx = ocmp()
+		if type(sx) ~= "string" or #sx ~= 64 then return nil end
 		-- the pack key arrives as 64 hex chars; decode to 32 raw bytes FIRST
 		-- (pack2.py XORs with the raw digest bytes, not the ASCII of the hex)
-		local mdi = table.create(32)
-		for txxj = 1, 32 do
-			mdi[txxj] = tonumber(bd:sub(txxj * 2 - 1, txxj * 2), 16) or 0
+		local uxbd = table.create(32)
+		for dec = 1, 32 do
+			uxbd[dec] = tonumber(sx:sub(dec * 2 - 1, dec * 2), 16) or 0
 		end
-		local obo = table.create(#fwz)
-		for flbd = 1, #fwz do
-			local ym = mdi[(flbd - 1) % 32 + 1]
-			obo[flbd] = string.char(bit32.bxor(fwz[flbd], ym))
+		local bdh = table.create(#hxw)
+		for qfly = 1, #hxw do
+			local fmdv = uxbd[(qfly - 1) % 32 + 1]
+			bdh[qfly] = string.char(bit32.bxor(hxw[qfly], fmdv))
 		end
 		-- one-shot: scrub the key so a second decode can't reuse it
-		pcall(function() zvk().LiquidHubPackKey["final-swarm"] = nil end)
-		return table.concat(obo)
+		pcall(function() bx().LiquidHubPackKey["final-swarm"] = nil end)
+		return table.concat(bdh)
 	end)
-	if not gay or type(tkeh) ~= "string" or #tkeh < 100 then
+	if not tqrv or type(bvn) ~= "string" or #bvn < 100 then
 		warn("[Liquid Hub] Could not obtain pack key (no valid session / worker unreachable).")
 		return
 	end
-	local ppum, kwr = (loadstring or load)(tkeh)
-	if not ppum then
+	local wmxo, xqx = (loadstring or load)(bvn)
+	if not wmxo then
 		warn("[Liquid Hub] Packed script integrity failure.")
 		return
 	end
-	return ppum()
+	return wmxo()
 end)()
